@@ -4,16 +4,16 @@ using HttpServer.ORM;
 namespace HttpServer.ORM;
 
 
-public interface IRepository
+public interface IRepository<TEntity>
 {
-    Account? GetById(int id);
-    void Create(Account account);
-    void Update(Account account);
-    void Delete(Account account);
-    List<Account> GetAccounts();
+    TEntity? GetById(int id);
+    void Create(TEntity entity);
+    void Update(TEntity entity);
+    void Delete(TEntity entity);
+    List<TEntity> GetAccounts();
 }
 
-public class AccountRepository : IRepository
+public class AccountRepository : IRepository<Account>
 {
     private static readonly ORM DB = new 
         ORM(@"Data Source=DESKTOP-Q9MBLGB\SQLEXPRESS;Initial Catalog=SteamDB;Integrated Security=True");
