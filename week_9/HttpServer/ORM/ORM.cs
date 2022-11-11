@@ -8,11 +8,12 @@ namespace HttpServer.ORM;
 public class ORM
 {
     private IDbConnection _connection;
-    private IDbCommand _command = null;
+    private IDbCommand _command = new SqlCommand();
 
     public ORM(string connectionString)
     {
         _connection = new SqlConnection(connectionString);
+        _command = _connection.CreateCommand();
     }
 
     private IEnumerable<T> ExecuteQuery<T>(string query)
@@ -29,7 +30,7 @@ public class ORM
             {
                 var obj = Activator.CreateInstance<T>();
                 type.GetProperties().ToList().ForEach(p=>
-                    p.SetValue(obj, reader[p.Name]));
+                    p.SetValue(obj, reader[p.Name.ToLower()]));
                 
                 list.Add(obj);
             }
@@ -86,7 +87,9 @@ public class ORM
     {
         var args = GetPropertiesValues(entity);
         var values = args.Select(value => $"@{value}").ToArray();
-        string nonQuery = $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})";
+        string nonQuery = $"SET IDENTITY_INSERT {typeof(T).Name}s ON" +
+                          $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})" +
+                          $"SET IDENTITY_INSERT {typeof(T).Name} OFF";
         ExecuteNonQuery<T>(nonQuery);
     }
 

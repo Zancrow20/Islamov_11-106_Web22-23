@@ -36,7 +36,7 @@ public class Accounts
     }
 
     [HttpPOST("login")]
-    public void Login()
+    public void Login(string email, string password)
     {
         //TODO
     }

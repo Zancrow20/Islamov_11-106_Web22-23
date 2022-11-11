@@ -2,7 +2,7 @@
 
 public class HttpGET : Attribute
 {
-    private string MethodUri { get; }
+    public string MethodUri { get; }
 
     public HttpGET(string methodUri)
     {
