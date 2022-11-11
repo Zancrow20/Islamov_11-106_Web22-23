@@ -1,0 +1,864 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    background-color: #181A21;
+    color: rgb(229, 228, 220);
+}
+
+body {
+    display: block;
+    color: rgb(229, 228, 220);
+    background-color: #181A21;
+    font-family: "Motiva Sans", Sans-serif;
+    font-weight: normal;
+}
+
+div {
+    display: block;
+}
+
+a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+::-webkit-scrollbar {
+    height: 12px;
+    width: 14px;
+    background: transparent;
+    z-index: 12;
+    overflow: visible;
+}
+::-webkit-scrollbar-thumb {
+    width: 10px;
+    background-color: #434953;
+    border-radius: 10px;
+    z-index: 12;
+    border: 4px solid rgba(0,0,0,0);
+    background-clip: padding-box;
+    transition: .32s ease-in-out;
+    margin: 4px;
+    min-height: 32px;
+    min-width: 32px;
+}
+::-webkit-scrollbar-thumb:hover {
+    border: 1px solid transparent;
+}
+
+header {
+    height: 104px;
+    padding: 0 16px;
+    background-size: auto;
+    background-color: #181A21;
+}
+
+header .logo-content {
+    background: #171a21;
+    background-image: initial;
+    background-position-x: initial;
+    background-position-y: initial;
+    background-size: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: rgb(23, 26, 33);
+    position: relative;
+    width: 940px;
+    height: 104px;
+    margin: 0px auto;
+    z-index: 402;
+}
+
+header .nav-menu {
+    position: absolute;
+    height: 68px;
+    left: 200px;
+    position: absolute;
+    text-align: left;
+    justify-content: space-between;
+}
+
+header .logo-content .logo {
+    position: absolute;
+    height: 74px;
+    width: 176px;
+    float: left;
+    padding-top: 30px;
+    margin-right: 40px;
+}
+
+.steam {
+    font-size: 14px;
+    height: 44px;
+    width: 176px;
+}
+
+.menuitem {
+    display: block;
+    position: relative;
+    padding: 45px 7px 7px 7px;
+    line-height: 16px;
+    float: left;
+    font-size: 14px;
+    color: #b8b6b4;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+}
+.menuitem:hover {
+    color: white;
+}
+
+header .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 400;
+    position: absolute;
+    height: 21px;
+    width: 246.61px;
+    right: 0px;
+    top: 6px;
+}
+header .action .actions-menu {
+    height: 25px;
+    width: 246.61px;
+    line-height: 24px;
+    vertical-align: top;
+}
+
+.download-btn {
+    background-color: #5c7e10;
+    background-image: url(https://store.akamai.steamstatic.com/public/shared/images/header/btn_header_installsteam_download.png?v=1);
+    background-position-x: 10px;
+    background-position-y: 5px;
+    background-repeat: no-repeat;
+    color: rgb(229, 228, 220);
+    cursor: pointer;
+    line-height: 24px;
+    padding-left: 35px;
+    padding-right: 9px;
+    text-decoration-color:rgb(229, 228, 220);
+    text-decoration-color: rgb(229, 228, 220);
+    text-decoration-line: none;
+    text-decoration-style: solid;
+    font-size: 11px;
+    float: left;
+}
+
+.download {
+    background-color: #5c7e10;
+    text-decoration: none;
+}
+.download:hover {
+    color: white;
+}
+
+header .menuitem-sign-in {
+    color: #b8b6b4;
+    padding: 0px 4px;
+    text-decoration: none;
+}
+header .menuitem-sign-in:hover {
+    color: white;
+}
+
+header .pulldown {
+    background-position: 100% 50%;
+    background-image: url(https://store.akamai.steamstatic.com/public/shared/images/popups/btn_arrow_down_padded.png);
+    background-repeat: no-repeat;
+    color: #b8b6b4;
+    cursor: pointer;
+    margin: 0 5px 0 0;
+    padding: 0 18px 0 4px;
+}
+header .pulldown:hover {
+    color: white;
+}
+
+.main-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 650.6px;
+    padding: 80px 0 150px;
+    background: radial-gradient(circle,rgba(41, 43, 49, 0.3), rgba(24,26,33,0.9)), url(../img/new_login_bg_strong_mask.jpg) center center/ cover no-repeat;
+    background-attachment: fixed;
+}
+
+.login-container {
+    background-color: rgba(0,0,0,0);
+    column-gap: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 12px;
+    row-gap: 32px;
+    height: 425.6px;
+    width: 700px;
+}
+
+.main-content .main-header {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    height: 78.4px;
+}
+
+.sign-in-header {
+    color: white;
+    background-color: transparent;
+    display: flex;
+
+    font-size: 32px;
+    letter-spacing: 1.76px;
+    height: 46.4px;
+    text-transform: uppercase;
+    width: 668px;
+}
+
+.sign-in {
+    border-radius: 2px;
+    color:#afafaf;
+    width: 700px;
+    height: 331.2px;
+    padding: 24px 32px;
+}
+
+.sign-in-dialog {
+    display: flex;
+}
+
+.sign-in-form {
+
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+    height: 283.2px;
+    width: 412px;
+}
+
+.sign-in-using-nickname {
+    color: #1999ff;
+    font-weight: 500;
+    text-transform: uppercase;
+    height: 16.73px;
+    width: 100%;
+}
+
+.inp {
+    height: 59.2px;
+}
+
+.input {
+    background-color: #32353c;
+    border: 1px solid #32353c;
+    border-radius: 2px;
+    height: 39.6px;
+    font-size: 15px;
+    padding: 10px;
+    width:100%;
+}
+
+.input:checked /*???*/{
+    border: 1px solid #32353c;
+}
+
+.input:hover {
+    background-color: #383b42;
+}
+
+.password {
+    font-weight: 500;
+    text-transform: uppercase;
+    height: 16.73px;
+    width: 100%;
+}
+
+.sign-in-QR-section {
+    width: 100%;
+    height: 283.2px;
+}
+
+.remember {
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checkbox {
+    width: 20px;
+    height: 20px;
+    padding: 3px;
+    background-color: #32353c;
+    border-radius: 2px;
+    cursor: pointer;
+    float: left;
+}
+
+.SVGIcon_Button {
+    background-color: rgba(0,0,0,0);
+    fill: #fff;
+    overflow: visible;
+    width: 100%;
+    height: 100%;
+    max-width: 320px;
+    max-height: 320px;
+}
+
+.checkbox:hover {
+    background-color: #414349;
+}
+
+.checkbox-label {
+    color: #afafaf;
+    font-size: 12px;
+    user-select: none;
+    padding-left: 6px;
+}
+
+.sign-in-btn-container {
+    height: 49.6px;
+    display: flex;
+    justify-content: center;
+}
+
+.sign-in-btn {
+    position: relative;
+    background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+    border-radius: 2px;
+    border: none;
+    outline: none;
+    padding: 12px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: center;
+    letter-spacing: .03em;
+    cursor: pointer;
+    width: 270px;
+}
+
+.form_error {
+    height: 17.6px;
+    color: #c15755;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.steam-help {
+    color: #afafaf;
+    text-align: center;
+    text-decoration: underline;
+}
+
+.steam-help:hover {
+    color: #fff;
+}
+
+.Qr {
+    flex: 0;
+    display: grid;
+    gap: 4px;
+    margin-left: 24px
+}
+
+.sign-in-QR-section{
+    display: flex;
+    color: #E9E9E9;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 220px
+}
+
+.beta-container {
+    color: #1999ff;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    margin: 6px 0px;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+.beta-function {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 0px;
+}
+
+.beta-subtitle {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    color: #afafaf;
+    margin: 8px;
+    text-align: left;
+}
+
+.mobile-app {
+    background-color: rgba(255,255,255,.1);
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    color: #fff;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.show-QR {
+    text-align: center;
+    text-decoration-line: underline;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 24px;
+    color: #afafaf;
+    padding: 12px 0px;
+    cursor: pointer;
+}
+
+.login-bottom-row {
+    display: flex;
+    flex-direction: row;
+    padding-top: 48px;
+    align-items: center;
+    margin-right: auto;
+    margin-left: auto;
+    width: 100%;
+    justify-content: center;
+    background-color: #181A21;
+}
+
+.join-image {
+    display: flex;
+    height: 136.79px;
+    width: 200px;
+}
+
+.join-steam {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    max-width: 200px;
+}
+
+.subtext {
+    font-size: 14px;
+    color: #b8b6b4;
+}
+
+.login-join-desc {
+    max-width: 60%;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.login_btn_ctn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.btnv6_white_transparent{
+    border-radius: 2px;
+    border: none;
+    padding: 1px;
+    display: inline-block;
+    cursor: pointer;
+    text-decoration: none !important;
+    color: #fff !important;
+    background: transparent;
+}
+
+.login_btn_ctn a {
+    margin: 20px 0 10px 0;
+    display: block;
+    text-align: center;
+}
+
+.btnv6_white_transparent > span {
+    border-radius: 2px;
+    display: block;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 2px;
+}
+
+.btn_medium > span {
+    padding: 0 15px;
+    font-size: 15px;
+    line-height: 30px;
+}
+
+.footer_spacer {
+    height: 290px;
+}
+
+.footer {
+    font-family: Arial, Helvetica, sans-serif;
+    /*position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;*/
+    padding: 16px 0 60px 0;
+    margin-top: 62px;
+    height: 228px;
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    background: #171a21;
+}
+
+.footer a:hover {
+    color: white;
+}
+
+.footer-content {
+    width: 940px;
+    margin: 0px auto;
+    padding-top: 16px;
+}
+
+.rule {
+    height: 8px;
+    border-top: 1px solid #363c44;
+}
+
+.footer_logo_steam {
+    float: right;
+    padding-top: 2px;
+}
+
+.footer_logo {
+    float: left;
+    padding-top: 2px;
+}
+
+.footer_logo a img {
+    height: 25px;
+    width: auto;
+}
+
+.footer_text {
+    float: left;
+    margin-left: 12px;
+    color: #8F98A0;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.footer_text div {
+    color: #8F98A0;
+}
+
+.footer_text a {
+    color: #C6D4DF;
+}
+
+.responsive_header {
+    display: none;
+    background: #171a21;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 20;
+    box-shadow: 0 0 7px 0 rgb(0 0 0 / 75%);
+    overflow: hidden;
+}
+
+.responsive_header_hidden {
+    display: none;
+    background: #171a21;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    box-shadow: 0 0 7px 0 rgb(0 0 0 / 75%);
+    overflow: hidden;
+}
+
+.responsive_header_content {
+    height: 0px;
+}
+
+.responsive_menu_logo, #responsive_header_search_btn {
+    display: none;
+    position: absolute;
+    top: 9px;
+    cursor: pointer;
+    width: 36px;
+    height: 31px;
+}
+
+.responsive_page_menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mainmenu_contents {
+    font-size: 22px;
+    position: relative;
+    min-height: 100%;
+}
+
+.mainmenu_contents_items {
+    font-family: "Motiva Sans", Sans-serif;
+    font-weight: 200;
+    display: none;
+}
+
+.mainmenu_contents .menuitem {
+    width: 100%;
+    display: flex;
+    font-size: 22px;
+    font-family: "Motiva Sans", Sans-serif;
+    font-weight: 200;
+    padding: 0 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 2.5em;
+    text-decoration: none;
+    cursor: pointer;
+    border-top: 1px solid #2f3138;
+    border-bottom: 1px solid #000000;
+    position: relative;
+    color: #bdbdbd;
+    background: #171a21;
+    transition: background 0.25s, color 0.25s;
+    text-transform: none;
+}
+
+.mainmenu .minor_menu_items .menuitem {
+    color: #8a8a8a;
+    border: none;
+    font-size: 0.75em;
+}
+
+.mainmenu_contents .menuitem .chevron {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAwCAYAAACG5f33AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABFxJREFUeNrkmg9klGEcx5/dMY4Y44hjxIgxRpSy7NwspSmNWZayGGmKFJGylCJSmlJMKctiylKa5aZpSmmMMWIcY4xxjGPEmPX72ffN23Z7732f3/Pe+97tx9dtd/e87/N+7n1+/563Ym1tTbmx8fHxLnq5QzqYSqXmbO+rMrMoaZDUz5dX6MsRl/A66OU5KUFK0/9xVb42QOLr/UTaLwZIsI7hoFG8VUsapferyhDeI1In/o7xdZL2Og2ocFrCBKkFv0Rlvo9JR0grZQKvl3Qrz/tLpCRpxhNAgteEXyDmcNL3pHbSaonDu0B67PB5ln0/adYVQILHt+0X0g4XJ39G6ilheJ0IGoVsAXdixhEgwWugl68kLz7uHulaCcJj/z5s8++FbJ50ADA3AyR4dYCnE2Uvkp6UELwU/HvM47gMlvPifwAJXi3gJQSTOkV6UwLw9sBF6WYSvwFxKbJhjc8LJ/aSdDjk8HYjOErSMAaYy7eE+aDpQrlPAfsDZzsZQni8un4JV9kIqc1K3/IFkWos5XrBSRxzp4CM/foPFAK6NkZqtee+W6UxcUCsE5yMXcI+e8QK0KpwPQ2CY3wnHcIKc5VIJ3BSyS+WQdjPBggvBrfUKDjGJODlvJZyNfTyjVQjPHkzaTkAeFyCvkW+p2vTcEc5z7WwwfQmqLp50NYc0I22SacVVOGmHyhMsC0bQp5YrLr5Kem80P38S5hFAG0lHief1YJJFatu5sbvdcH4TSWbGKCtyZAWJqG3STd9hHeZ9ECYPfCdN+fmy54AAmIjIMYEk+zB3WjaulAN6dqWbStjAAFRtxD3s24+gYgbFcBr9pr8awEExKNoBVVqTngFWf2Yoc7KqGAuOcCb8jpQGyAgSn91E3Wzl+bvVnNgeD91BosAAiLnWQPCpZNEzuXV6gEvLoDH+emE7vVHDCwf9mPdwiI/rZGo78KyjQtcSJsEnimAbK/Uekda1xKA6BbGTk3odngnSZ+lF24KIBu3868Ixte5jOxWz1K3ycGV0Bm1vqOowgSQ7aEwSeaA8MEhmlqdFUmvshtlpQojQKvSuC8Y34JkOJqnszKsZN3yc3A3KswA2a6S+gTjObLbN7qjiPSS/RZ2L/2mL9QvgGyXSC8E47mT0mvrrHQIjnUD7sW4mcgDnT6OYjmeFpyC04wmwfi7AOiL+XkHWhHvLOmd4BgSeH1+wisGQAsiNw5GVHGtH25ElTpAe9Y/VqTzvUbEVeUC0IJ4XK1vD/ppQ3AbqtwA2ot3v55a+IgqY7VcAbLx9ibvsU4bPi7Xte2qyDt/QQBkywGiqUc/JpTteZXtAJAtC4gZ4XG4EdqqNjxysR0AsvGea1LpP1Y3BZ+6HNQFBA2QzXr22OtDSDOAlwty8mEAyMZ7sM3K/UNIs1j+2aAnHhaAFhQ3EC3Yi2GYdJgAulmWC4C3EJYJhw2gU2CwAs5cmCYbRoD5UhNTKc+2AWhPjrOGk26j9leAAQDu6F3rDzHr6wAAAABJRU5ErkJggg==);
+    background-size: 100% 100%;
+    width: 20px;
+    height: 12px;
+    position: absolute;
+    right: 12px;
+    top: calc( 50% - 6px );
+    transition: transform 0.25s;
+}
+
+.mainmenu_footer_spacer {
+    height: 160px;
+}
+
+.mainmenu_footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 10px;
+    white-space: normal;
+    color: #8a8a8a;
+    padding: 0 12px 24px 12px;
+    text-align: left;
+}
+
+.mainmenu_footer .mainmenu_valve_links > a {
+    color: #8a8a8a;
+}
+
+.responsive_menu_logo {
+    position: fixed;
+    left: 8px;
+    top: 9px;
+    background-color: transparent;
+    z-index:21;
+}
+
+.burger {
+    width: 36px;
+    height: 31px;
+}
+
+@media screen and (max-width: 910px)
+{
+    html.responsive div.responsive_header {
+        display: block;
+        width: 100%;
+        height: 62px;
+        padding: 13px 8px;
+    }
+    div.responsive_header_hidden {
+        display: flex;
+        height: 62px;
+        padding: 13px 8px;
+    }
+
+    .page-content{
+        padding-bottom: 120px;
+    }
+
+    .header-desktop {
+        display: none;
+    }
+
+    .footer{
+        display: none;
+    }
+
+    .mainmenu_contents_items{
+        display: block;
+    }
+
+    #burger-menu-checkbox {
+        display: none;
+    }
+
+    #burger-menu-checkbox:checked ~ .mainmenu {
+        left: 0;
+        box-shadow: 0 0 7px 0 rgb(0 0 0 / 75%);
+    }
+
+    #burger-menu-checkbox:checked ~ .responsive_menu_logo {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        cursor: default;
+        z-index: 28;
+    }
+
+    #burger-menu-checkbox:checked ~ .burger {
+        display: none;
+    }
+
+
+    .responsive_page_menu_ctn {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        overflow: hidden;
+        z-index: 30;
+        width: 280px;
+        transition: left 0.5s, right 0.5s;
+    }
+
+    .responsive_page_menu_ctn {
+        left: -280px;
+    }
+
+    .responsive_menu_logo, #responsive_header_search_btn {
+        display: block
+    }
+    /*Доделать всплывающее окошко, как в примере с кругами из видео*/
+}
+
+@media screen and (max-width: 700px){
+    /*Доделать логин меню*/
+    .main-content {
+        background: url(../img/new_login_bg_strong_mask_mobile.jpg) center center/ cover no-repeat;
+        padding-bottom: 0;
+        height: 717px;
+    }
+
+    .login-container {
+        width: 334px;
+        height: 705.6px;
+    }
+
+    .main-header {
+        margin: 8px 16px;
+    }
+
+    .sign-in-header {
+        width: 334px;
+        justify-content: center;
+    }
+
+    .sign-in {
+        background-color: transparent;
+        display: flex;
+        width: 334px;
+        height: 611.6px;
+    }
+
+    .sign-in * {
+        background-color: transparent;
+    }
+
+    .sign-in-dialog {
+
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .sign-in-form {
+        display: flex;
+        flex-direction: column;
+        width: 270px;
+        height: 283.2px;
+    }
+
+    .sign-in-form input{
+        background-color: #32353c;
+    }
+
+    .sign-in-form .checkbox {
+        background-color: #32353c;
+    }
+
+    .Qr {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-left: 0;
+        margin-top: 48px;
+    }
+
+    .sign-in-QR-section{
+        align-items: center;
+        width: 200px;
+    }
+
+    .beta-function img {
+        display: none;
+    }
+
+    .mobile-app {
+        background-color: rgba(255,255,255,.1);
+    }
+
+    .login-bottom-row {
+        flex-direction: column-reverse;
+    }
+
+    .login_btn_ctn {
+        order: 1;
+    }
+}
