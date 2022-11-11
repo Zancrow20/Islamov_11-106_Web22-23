@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Text;
+using HttpServer.Models;
 
 namespace HttpServer.ORM;
 
