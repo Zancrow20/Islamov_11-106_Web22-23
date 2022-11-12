@@ -1,4 +1,5 @@
-﻿using HttpServer.Attributes;
+﻿using System.Net;
+using HttpServer.Attributes;
 using HttpServer.Models;
 using HttpServer.ORM;
 
@@ -25,20 +26,13 @@ public class Accounts
     }
     
     [HttpPOST("account$")]
-    public void SaveUser(string query)
-    {
-        var accountData = query.Split('&')
-            .Select(pair => pair?.Split('=')[1]).ToArray();
-        if(accountData[0] == null || accountData[1] == null)
-            return;
-        var account = new Account() {Nickname = accountData[0], Password = accountData[1]};
-        _accountRepo.Create(account);
-    }
-
-    [HttpPOST("")]
-    public bool Login(string nickname, string password)
+    public SessionId Login(string nickname, string password)
     {
         var account = _accountRepo.GetAccountByProperties(nickname, password);
-        return account != null;
+
+        var cookie = account == null
+            ? new SessionId(false, null)
+            : new SessionId(true, account.Id);
+        return cookie;
     }
 }

@@ -11,14 +11,12 @@ public interface IRepository<TEntity>
     void Update(TEntity entity);
     void Delete(TEntity entity);
     List<TEntity> GetAccounts();
-
-    Account? GetAccountByProperties(string nickname, string password);
 }
 
 public class AccountRepository : IRepository<Account>
 {
     private static readonly ORM DB = new 
-        ORM(@"Data Source=DESKTOP-Q9MBLGB\SQLEXPRESS;Initial Catalog=SteamDB;Integrated Security=True");
+        (@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SteamDB;Integrated Security=True");
     
     public Account? GetById(int id)
         => DB.Select<Account>(id);
@@ -42,7 +40,7 @@ public class AccountRepository : IRepository<Account>
         Account? account = null;
         foreach (var accountByName in listByNicknames)
             foreach (var accountByPassword in listByPasswords)
-                if (accountByName == accountByPassword)
+                if (accountByName.Id == accountByPassword.Id)
                     account = accountByName;
         return account;
     }

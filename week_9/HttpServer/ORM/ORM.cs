@@ -21,35 +21,30 @@ public class ORM
     {
         IList<T> list = new List<T>();
         Type type = typeof(T);
-
-        using (_connection)
+        
+        _command.CommandText = query;
+        _connection.Open();
+        var reader = _command.ExecuteReader();
+        while (reader.Read())
         {
-            _command.CommandText = query;
-            _connection.Open();
-            var reader = _command.ExecuteReader();
-            while (reader.Read())
-            {
-                var obj = Activator.CreateInstance<T>();
-                type.GetProperties().ToList().ForEach(p=>
-                    p.SetValue(obj, reader[p.Name.ToLower()]));
-                
-                list.Add(obj);
-            }
+            var obj = Activator.CreateInstance<T>();
+            type.GetProperties().ToList().ForEach(p=>
+                p.SetValue(obj, reader[p.Name.ToLower()]));
+            
+            list.Add(obj);
         }
+        _connection.Close();
 
         return list;
     }
 
     private int ExecuteNonQuery<T>(string query)
     {
-        int noAffectedRows;
-        using (_connection)
-        {
-            _command.CommandText = query;
-            _connection.Open();
-            noAffectedRows = _command.ExecuteNonQuery();
-        }
-        
+        _command.CommandText = query;
+        _connection.Open();
+        var noAffectedRows = _command.ExecuteNonQuery(); 
+        _command.Parameters.Clear();
+        _connection.Close();
         return noAffectedRows;
     }
 
@@ -62,7 +57,7 @@ public class ORM
     public List<T> Select<T>(string propertyValue, string propertyName)
     {
         var query = $"SELECT * FROM {typeof(T).Name}s " +
-                    $"WHERE {propertyName.ToLower()} = {propertyValue}";
+                    $"WHERE {propertyName.ToLower()} = '{propertyValue}'";
         return ExecuteQuery<T>(query).ToList();
     }
 
@@ -93,16 +88,32 @@ public class ORM
 
     public void Insert<T>(T entity)
     {
-        var args = GetPropertiesValues(entity);
-        var values = args.Select(value => $"@{value}").ToArray();
+        var args = GetProperties(entity);
+        var values = args.Select(value => $"@{value.GetValue(entity)}").ToArray();
+        foreach (var parameter in args)
+        {
+            var sqlParameter = new SqlParameter($"@{parameter.Name}", parameter.GetValue(entity));
+            _command.Parameters.Add(sqlParameter);
+        }
+        
         string nonQuery = $"SET IDENTITY_INSERT {typeof(T).Name}s ON" +
                           $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})" +
                           $"SET IDENTITY_INSERT {typeof(T).Name} OFF";
         ExecuteNonQuery<T>(nonQuery);
     }
 
+    public void Insert<T>(params object[] args)
+    {
+        var values = args.Select(value => $"@{value}").ToArray();
+        string nonQuery = $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})";
+        ExecuteNonQuery<T>(nonQuery);
+    }
+
     private static IEnumerable<object?> GetPropertiesValues<T>(T entity) =>
         typeof(T).GetProperties().Select(property => property.GetValue(entity));
+
+    private static PropertyInfo[] GetProperties<T>(T entity) =>
+        typeof(T).GetProperties();
 
     private static object? GetId<T>(T entity) =>
         typeof(T).GetProperty("id")?.GetValue(entity);

@@ -20,6 +20,8 @@ public class Response
    public byte[] Buffer { get; set; }
    public HttpStatusCode StatusCode { get; set; }
    public string? Content { get; set; }
+
+   public Cookie? Cookie { get; set; }
 }
 
 
@@ -100,12 +102,9 @@ public class HttpServer : IDisposable
          {
             response.Headers.Set(HttpResponseHeader.ContentType, ResponseInfo.Content);
             response.StatusCode = (int) ResponseInfo.StatusCode;
+            response.SetCookie(ResponseInfo.Cookie!);
 
-            if (response.StatusCode == (int) HttpStatusCode.Redirect)
-               response.Headers.Set(HttpResponseHeader.Location,
-                  "https://store.steampowered.com/login/?redir=&redir_ssl=1&snr=1_4_4__global-header");
-
-            using var output = response.OutputStream;
+            await using var output = response.OutputStream;
             output.Write(ResponseInfo.Buffer);
          }
          else
@@ -183,21 +182,22 @@ public class HttpServer : IDisposable
       var uri = string.Join("", request.Url?.Segments!);
       var controllerName = uri.Split('/')[1];
       var httpMethod = $"Http{httpContext.Request.HttpMethod}";
-      
-      Stream body = request.InputStream;
-      Encoding encoding = request.ContentEncoding;
-      using StreamReader reader = new StreamReader(body, encoding);
-      var str = await reader.ReadToEndAsync();
+      var inputParams = ParseQuery(await GetQueryStringAsync(request)); 
 
       List<string> strParams = new List<string>();
-      if(httpMethod == "HttpGET")
-         strParams = httpContext.Request.Url?
-            .Segments
-            .Skip(2)
-            .Select(s => s.Replace("/", ""))
-            .ToList() ?? new List<string>();
-      else if(httpMethod == "HttpPOST")
-         strParams?.Add(str);
+      switch (httpMethod)
+      {
+         case "HttpGET":
+            strParams.AddRange(httpContext.Request.Url?
+               .Segments
+               .Skip(2)
+               .Select(s => s.Replace("/", ""))
+               .ToList() ?? new List<string>());
+            break;
+         case "HttpPOST":
+            strParams?.AddRange(inputParams);
+            break;
+      }
 
       var assembly = Assembly.GetExecutingAssembly();
 
@@ -219,7 +219,7 @@ public class HttpServer : IDisposable
                .GetProperty("MethodUri")
                ?.GetValue(method.GetCustomAttribute(attribute.AttributeType))?
                .ToString() ?? "";
-            var httpMethodUri = request.Url?.AbsolutePath.Split('/')[2];
+            var httpMethodUri = request.Url?.AbsolutePath.Split('/')[^1];
             if (httpMethodUri == null) return false;
             return httpMethodUri == methodUri;
          });
@@ -230,17 +230,40 @@ public class HttpServer : IDisposable
          .Select((p, i) => Convert.ChangeType(strParams?[i], p.ParameterType))
          .ToArray();
 
-      var ret = method.Invoke(Activator.CreateInstance(controller), queryParams);
+      var returnedValue = method.Invoke(Activator.CreateInstance(controller), queryParams);
 
-      var buffer = ret != null ? Encoding.ASCII.GetBytes(JsonSerializer.Serialize(ret))
+      var buffer = returnedValue != null ? Encoding.ASCII.GetBytes(JsonSerializer.Serialize(returnedValue))
             : Encoding.ASCII.GetBytes("404 - not found");
+      
       response.ContentLength64 = buffer.Length;
 
-      ResponseInfo = ret == null ? 
-         new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.Redirect} : 
+      ResponseInfo = returnedValue != null ?
+         method.Name == "Login" ? GetLoginResponse(returnedValue, buffer) : 
+         new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK} :
          new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK};
       return true;
    }
 
+   private static Response GetLoginResponse(object returnedValue, byte[] bytes)
+   {
+      var sessionId = (SessionId) returnedValue;
+      var cookie = sessionId.IsAuthorized
+         ? new Cookie("SessionId",
+            $"IsAuthorized={sessionId.IsAuthorized} Id={sessionId.Id}") : null;
+      return new Response { Buffer = bytes, Content = "Application/json", StatusCode = HttpStatusCode.OK, Cookie = cookie};
+   }
+   
+   private static async Task<string> GetQueryStringAsync(HttpListenerRequest request)
+   {
+      Stream body = request.InputStream;
+      Encoding encoding = request.ContentEncoding;
+      using StreamReader reader = new StreamReader(body, encoding);
+      return await reader.ReadToEndAsync();
+   }
+
+   private static IEnumerable<string> ParseQuery(string query)
+      => query.Split('&')
+         .Select(pair => pair.Split('=')[1]);
+   
    public void Dispose() => Stop();
 }
