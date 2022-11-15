@@ -228,8 +228,8 @@ public class HttpServer : IDisposable
             return Regex.IsMatch(httpMethodUri, methodUri);
          });
       
-      if (method == null) return false;
-      if (method.Name == "GetAccounts")
+      if (method is null) return false;
+      if (method.Name is "GetAccounts" or "GetAccountInfo")
       {
          var cookieValue = request.Cookies["SessionId"] != null ? 
             request.Cookies["SessionId"]?.Value : "";
@@ -244,7 +244,8 @@ public class HttpServer : IDisposable
       var buffer = returnedValue switch
       {
          not null => Encoding.ASCII.GetBytes(JsonSerializer.Serialize(returnedValue)),
-         null when method.Name == "GetAccounts" => Encoding.ASCII.GetBytes("401 - not authorized"),
+         null when method.Name is "GetAccounts" or "GetAccountInfo" 
+            => Encoding.ASCII.GetBytes("401 - not authorized"),
          null => Encoding.ASCII.GetBytes("404 - not found")
       };
       
@@ -252,9 +253,9 @@ public class HttpServer : IDisposable
 
       ResponseInfo = returnedValue switch
       {
-         not null when method.Name == "Login" => GetLoginResponse(returnedValue, buffer),
+         not null when method.Name is "Login" => GetLoginResponse(returnedValue, buffer),
          not null => new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK},
-         null when method.Name == "GetAccounts" => 
+         null when method.Name is "GetAccounts" or "GetAccountInfo"=> 
             new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.Unauthorized},
          null => new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK}
       };
@@ -281,7 +282,7 @@ public class HttpServer : IDisposable
 
    private static IEnumerable<string> ParseQuery(string query)
       => query.Split('&')
-         .Select(pair => pair.Split('=')[1]);
+         .Select(pair => pair.Split('=')[^1]);
    
    public void Dispose() => Stop();
 }

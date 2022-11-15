@@ -22,9 +22,14 @@ public class Accounts
     }
 
     [HttpGET("[1-9][0-9]+")]
-    public Account? GetUserById(int id)
+    public Account? GetAccountInfo(int id, string cookie)
     {
-        return _accountRepo.GetById(id);
+        var cookieInfo = cookie.Split(' ');
+        if (cookieInfo[0] is "IsAuthorized=True")
+            if (int.TryParse(cookieInfo[1].Split('=')[^1], out var idFromCookie) && idFromCookie == id)
+                return _accountRepo.GetById(id);
+        
+        return null;
     }
     
     [HttpPOST("account")]
