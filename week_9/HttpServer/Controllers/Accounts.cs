@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.RegularExpressions;
 using HttpServer.Attributes;
 using HttpServer.Models;
 using HttpServer.ORM;
@@ -14,18 +15,19 @@ public class Accounts
     public Accounts() => _accountRepo = new AccountRepository();
 
     [HttpGET("")]
-    public List<Account> GetUsers()
+    public List<Account>? GetAccounts(string? cookieValue)
     {
-        return _accountRepo.GetAccounts();
+        var authorization = cookieValue?.Split(' ')[0];
+        return authorization is "IsAuthorized=True" ? _accountRepo.GetAccounts() : null;
     }
 
-    [HttpGET("[1-9][0-9]*$")]
+    [HttpGET("[1-9][0-9]+")]
     public Account? GetUserById(int id)
     {
         return _accountRepo.GetById(id);
     }
     
-    [HttpPOST("account$")]
+    [HttpPOST("account")]
     public SessionId Login(string nickname, string password)
     {
         var account = _accountRepo.GetAccountByProperties(nickname, password);

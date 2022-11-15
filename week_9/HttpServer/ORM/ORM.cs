@@ -63,7 +63,7 @@ public class ORM
 
     public T? Select<T>(int id)
     {
-        var query = $"SELECT * FROM {typeof(T).Name}s WHERE id = id";
+        var query = $"SELECT * FROM {typeof(T).Name}s WHERE id = {id}";
         return ExecuteQuery<T>(query).ToList().FirstOrDefault();
     }
 

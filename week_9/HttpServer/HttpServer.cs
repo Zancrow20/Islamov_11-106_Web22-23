@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using HttpServer.Attributes;
-using System;
+using System.Text.RegularExpressions;
 
 namespace HttpServer;
 
@@ -102,7 +102,8 @@ public class HttpServer : IDisposable
          {
             response.Headers.Set(HttpResponseHeader.ContentType, ResponseInfo.Content);
             response.StatusCode = (int) ResponseInfo.StatusCode;
-            response.SetCookie(ResponseInfo.Cookie!);
+            if(ResponseInfo.Cookie != null)
+               response.SetCookie(ResponseInfo.Cookie);
 
             await using var output = response.OutputStream;
             output.Write(ResponseInfo.Buffer);
@@ -218,29 +219,46 @@ public class HttpServer : IDisposable
             var methodUri = attribute.AttributeType
                .GetProperty("MethodUri")
                ?.GetValue(method.GetCustomAttribute(attribute.AttributeType))?
-               .ToString() ?? "";
+               .ToString();
             var httpMethodUri = request.Url?.AbsolutePath.Split('/')[^1];
-            if (httpMethodUri == null) return false;
-            return httpMethodUri == methodUri;
+            
+            if (methodUri == string.Empty)
+               return httpMethodUri == methodUri;
+            
+            return Regex.IsMatch(httpMethodUri, methodUri);
          });
       
       if (method == null) return false;
-
+      if (method.Name == "GetAccounts")
+      {
+         var cookieValue = request.Cookies["SessionId"] != null ? 
+            request.Cookies["SessionId"]?.Value : "";
+         strParams?.Add(cookieValue!);
+      }
+      
       object?[] queryParams = method.GetParameters()
          .Select((p, i) => Convert.ChangeType(strParams?[i], p.ParameterType))
          .ToArray();
 
       var returnedValue = method.Invoke(Activator.CreateInstance(controller), queryParams);
-
-      var buffer = returnedValue != null ? Encoding.ASCII.GetBytes(JsonSerializer.Serialize(returnedValue))
-            : Encoding.ASCII.GetBytes("404 - not found");
+      var buffer = returnedValue switch
+      {
+         not null => Encoding.ASCII.GetBytes(JsonSerializer.Serialize(returnedValue)),
+         null when method.Name == "GetAccounts" => Encoding.ASCII.GetBytes("401 - not authorized"),
+         null => Encoding.ASCII.GetBytes("404 - not found")
+      };
       
       response.ContentLength64 = buffer.Length;
 
-      ResponseInfo = returnedValue != null ?
-         method.Name == "Login" ? GetLoginResponse(returnedValue, buffer) : 
-         new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK} :
-         new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK};
+      ResponseInfo = returnedValue switch
+      {
+         not null when method.Name == "Login" => GetLoginResponse(returnedValue, buffer),
+         not null => new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK},
+         null when method.Name == "GetAccounts" => 
+            new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.Unauthorized},
+         null => new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK}
+      };
+      
       return true;
    }
 
