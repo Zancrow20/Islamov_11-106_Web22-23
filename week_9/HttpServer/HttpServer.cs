@@ -183,23 +183,7 @@ public class HttpServer : IDisposable
       var uri = string.Join("", request.Url?.Segments!);
       var controllerName = uri.Split('/')[1];
       var httpMethod = $"Http{httpContext.Request.HttpMethod}";
-      var inputParams = ParseQuery(await GetQueryStringAsync(request)); 
-
-      List<string> strParams = new List<string>();
-      switch (httpMethod)
-      {
-         case "HttpGET":
-            strParams.AddRange(httpContext.Request.Url?
-               .Segments
-               .Skip(2)
-               .Select(s => s.Replace("/", ""))
-               .ToList() ?? new List<string>());
-            break;
-         case "HttpPOST":
-            strParams?.AddRange(inputParams);
-            break;
-      }
-
+      var inputParams = ParseQuery(await GetQueryStringAsync(request));
       var assembly = Assembly.GetExecutingAssembly();
 
       var controller = assembly
@@ -229,11 +213,27 @@ public class HttpServer : IDisposable
          });
       
       if (method is null) return false;
+      
+      List<string> strParams = new List<string>();
+      switch (httpMethod)
+      {
+         case "HttpGET" when method.Name is not "GetAccountInfo" :
+            strParams.AddRange(httpContext.Request.Url?
+               .Segments
+               .Skip(2)
+               .Select(s => s.Replace("/", ""))
+               .ToList() ?? new List<string>());
+            break;
+         case "HttpPOST":
+            strParams.AddRange(inputParams);
+            break;
+      }
+      
       if (method.Name is "GetAccounts" or "GetAccountInfo")
       {
          var cookieValue = request.Cookies["SessionId"] != null ? 
             request.Cookies["SessionId"]?.Value : "";
-         strParams?.Add(cookieValue!);
+         strParams.Add(cookieValue!);
       }
       
       object?[] queryParams = method.GetParameters()
@@ -266,9 +266,8 @@ public class HttpServer : IDisposable
    private static Response GetLoginResponse(object returnedValue, byte[] bytes)
    {
       var sessionId = (SessionId) returnedValue;
-      var cookie = sessionId.IsAuthorized
-         ? new Cookie("SessionId",
-            $"IsAuthorized={sessionId.IsAuthorized} Id={sessionId.Id}") : null;
+      var cookie = new Cookie("SessionId",
+         $"Guid={sessionId.Guid}");
       return new Response { Buffer = bytes, Content = "Application/json", StatusCode = HttpStatusCode.OK, Cookie = cookie};
    }
    

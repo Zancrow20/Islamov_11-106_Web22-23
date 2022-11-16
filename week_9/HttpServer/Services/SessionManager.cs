@@ -22,8 +22,8 @@ public class SessionManager
                     cacheEntry = createItem();
                     var cacheEntryOptions =
                         new MemoryCacheEntryOptions()
-                            .SetSlidingExpiration(TimeSpan.FromMinutes(2))
-                            .SetAbsoluteExpiration(TimeSpan.FromMinutes(2));
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(2000))
+                            .SetAbsoluteExpiration(TimeSpan.FromMinutes(2000));
                     _cache.Set(key, cacheEntry, cacheEntryOptions);
                 }
             }

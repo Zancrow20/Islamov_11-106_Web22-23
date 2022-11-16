@@ -15,13 +15,12 @@ public class Accounts
     public Accounts() => _accountRepo = new AccountRepository();
 
     [HttpGET("")]
-    public List<Account>? GetAccounts(string? cookieValue)
+    public List<Account>? GetAccounts(string? cookie)
     {
         try
         {
-            var authorization = cookieValue?.Split(' ');
-            var canParse = int.TryParse(authorization[^1].Split('=')[1],out var id);
-            if (canParse && authorization[0] is "IsAuthorized=True" && SessionManager.CheckSession(id))
+            var cookieInfo = cookie?.Split('=')[^1];
+            if (Guid.TryParse(cookieInfo, out var guid) && SessionManager.CheckSession(guid))
                 return _accountRepo.GetAccounts();
         }
         catch (KeyNotFoundException e)
@@ -33,13 +32,13 @@ public class Accounts
     }
 
     [HttpGET("[1-9][0-9]+")]
-    public Account? GetAccountInfo(int id, string cookie)
+    public Account? GetAccountInfo(string cookie)
     {
         try
         { 
-            var cookieInfo = cookie.Split(' ');
-            if (cookieInfo[0] is "IsAuthorized=True" && SessionManager.CheckSession(id))
-                return _accountRepo.GetById(SessionManager.GetInfo(id)!.AccountId);
+            var cookieInfo = cookie.Split('=')[^1];
+            if (Guid.TryParse(cookieInfo, out var guid) && SessionManager.CheckSession(guid))
+                return _accountRepo.GetById(SessionManager.GetInfo(guid)!.AccountId);
         }
         catch (KeyNotFoundException e)
         {
@@ -52,8 +51,10 @@ public class Accounts
     public SessionId Login(string nickname, string password)
     {
         var account = _accountRepo.GetAccountByProperties(nickname, password);
-        if (account == null) return new SessionId(false, null);
-        SessionManager.GetOrAdd(account.Id, () => new Session(account.Id, nickname, DateTime.Now));
-        return new SessionId(true, account.Id);
+        if (account == null) return null;
+        var sessionId = new SessionId(account.Id, nickname,password);
+        SessionManager.GetOrAdd(sessionId.Guid, () 
+            => new Session(sessionId.Guid, account.Id, nickname, DateTime.Now));
+        return sessionId;
     }
 }
