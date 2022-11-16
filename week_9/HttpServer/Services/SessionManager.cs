@@ -5,10 +5,10 @@ namespace HttpServer;
 
 public class SessionManager
 {
-    private MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
-    private ConcurrentDictionary<object, SemaphoreSlim> _locks = new ();
+    private static MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+    private static ConcurrentDictionary<object, SemaphoreSlim> _locks = new ();
  
-    public Session GetOrAdd(object key, Func<Session> createItem)
+    public static Session GetOrAdd(object key, Func<Session> createItem)
     {
         if (!_cache.TryGetValue(key, out Session cacheEntry))
         {
@@ -35,14 +35,15 @@ public class SessionManager
         return cacheEntry;
     }
 
-    public bool CheckSession(object key)
+    public static bool CheckSession(object key)
     {
-        return _cache.TryGetValue(key, out _);
+        var contains = _cache.TryGetValue(key, out Session session);
+        return contains ? contains : throw new KeyNotFoundException("Couldn't find this key");
     }
 
-    public Session? GetInfo(object key)
+    public static Session? GetInfo(object key)
     {
-        return _cache.TryGetValue(key, out Session session) ? session 
-            : throw new KeyNotFoundException("Couldn't find this key");
+        return _cache.Get<Session>(key);
+
     }
 }

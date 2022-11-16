@@ -3,13 +3,12 @@
 public class Session
 {
     public int AccountId { get; }
-    public int? Id { get; }
+    public int? Id { get; set; }
     public string Nickname { get; }
     public DateTime CreateDateTime { get; }
 
-    public Session(int? id, int accountId, string nickname, DateTime createDateTime)
+    public Session(int accountId, string nickname, DateTime createDateTime)
     {
-        Id = id;
         AccountId = accountId;
         Nickname = nickname;
         CreateDateTime = createDateTime;

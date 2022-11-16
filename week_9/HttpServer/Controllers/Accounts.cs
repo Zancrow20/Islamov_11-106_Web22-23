@@ -17,18 +17,34 @@ public class Accounts
     [HttpGET("")]
     public List<Account>? GetAccounts(string? cookieValue)
     {
-        var authorization = cookieValue?.Split(' ')[0];
-        return authorization is "IsAuthorized=True" ? _accountRepo.GetAccounts() : null;
+        try
+        {
+            var authorization = cookieValue?.Split(' ');
+            var canParse = int.TryParse(authorization[^1].Split('=')[1],out var id);
+            if (canParse && authorization[0] is "IsAuthorized=True" && SessionManager.CheckSession(id))
+                return _accountRepo.GetAccounts();
+        }
+        catch (KeyNotFoundException e)
+        {
+            return null;
+        }
+        
+        return null;
     }
 
     [HttpGET("[1-9][0-9]+")]
     public Account? GetAccountInfo(int id, string cookie)
     {
-        var cookieInfo = cookie.Split(' ');
-        if (cookieInfo[0] is "IsAuthorized=True")
-            if (int.TryParse(cookieInfo[1].Split('=')[^1], out var idFromCookie) && idFromCookie == id)
-                return _accountRepo.GetById(id);
-        
+        try
+        { 
+            var cookieInfo = cookie.Split(' ');
+            if (cookieInfo[0] is "IsAuthorized=True" && SessionManager.CheckSession(id))
+                return _accountRepo.GetById(SessionManager.GetInfo(id)!.AccountId);
+        }
+        catch (KeyNotFoundException e)
+        {
+            return null;
+        }
         return null;
     }
     
@@ -36,10 +52,8 @@ public class Accounts
     public SessionId Login(string nickname, string password)
     {
         var account = _accountRepo.GetAccountByProperties(nickname, password);
-
-        var cookie = account == null
-            ? new SessionId(false, null)
-            : new SessionId(true, account.Id);
-        return cookie;
+        if (account == null) return new SessionId(false, null);
+        SessionManager.GetOrAdd(account.Id, () => new Session(account.Id, nickname, DateTime.Now));
+        return new SessionId(true, account.Id);
     }
 }
