@@ -16,7 +16,7 @@ public interface IRepository<TEntity>
 public class AccountRepository : IRepository<Account>
 {
     private static readonly ORM DB = new 
-        (@"Data Source=DESKTOP-Q9MBLGB\SQLEXPRESS;Initial Catalog=SteamDB;Integrated Security=True");
+        (@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SteamDB;Integrated Security=True");
     
     public Account? GetById(int id)
         => DB.Select<Account>(id);
