@@ -5,10 +5,10 @@ namespace HttpServer.ORM;
 
 public interface IAccountDAO
 {
-    List<Account> GetAccounts();
-    Account? GetAccountById(int id);
-    void Add(string nickname, string password);
-    void Delete(int id);
+    Task<List<Account>> GetAccounts();
+    Task<Account?> GetAccountById(int id);
+    Task Add(string nickname, string password);
+    Task Delete(int id);
 }
 public class AccountDAO: IAccountDAO
 {
@@ -22,18 +22,18 @@ public class AccountDAO: IAccountDAO
         DB = new ORM(connectionString);
     }
 
-    public List<Account> GetAccounts() 
-        => DB.Select<Account>();
+    public async Task<List<Account>> GetAccounts() 
+        => await DB.Select<Account>();
 
-    public Account? GetAccountById(int id) 
-        => DB.Select<Account>(id);
+    public async Task<Account?> GetAccountById(int id) 
+        => await DB.Select<Account>(id);
 
-    public void Add(string nickname, string password) =>
-        DB.Insert<Account>(nickname, password);
+    public async Task Add(string nickname, string password) =>
+        await DB.Insert<Account>(nickname, password);
 
-    public void Delete(int id)
+    public async Task Delete(int id)
     {
         var account = DB.Select<Account>(id);
-        DB.Delete(account);
+        await DB.Delete(account);
     }
 }

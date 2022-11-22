@@ -8,8 +8,8 @@ namespace HttpServer.ORM;
 
 public class ORM
 {
-    private IDbConnection _connection;
-    private IDbCommand _command = new SqlCommand();
+    private SqlConnection _connection;
+    private SqlCommand _command = new SqlCommand();
 
     public ORM(string connectionString)
     {
@@ -17,15 +17,15 @@ public class ORM
         _command = _connection.CreateCommand();
     }
 
-    private IEnumerable<T> ExecuteQuery<T>(string query)
+    private async Task<IEnumerable<T>> ExecuteQuery<T>(string query)
     {
         IList<T> list = new List<T>();
         Type type = typeof(T);
         
         _command.CommandText = query;
-        _connection.Open();
-        var reader = _command.ExecuteReader();
-        while (reader.Read())
+        await _connection.OpenAsync();
+        var reader = await _command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
         {
             var obj = Activator.CreateInstance<T>();
             type.GetProperties().ToList().ForEach(p=>
@@ -33,41 +33,41 @@ public class ORM
             
             list.Add(obj);
         }
-        _connection.Close();
+        await _connection.CloseAsync();
 
         return list;
     }
 
-    private int ExecuteNonQuery<T>(string query)
+    private async Task<int> ExecuteNonQuery<T>(string query)
     {
         _command.CommandText = query;
-        _connection.Open();
-        var noAffectedRows = _command.ExecuteNonQuery(); 
+        await _connection.OpenAsync();
+        var noAffectedRows = await _command.ExecuteNonQueryAsync(); 
         _command.Parameters.Clear();
-        _connection.Close();
+        await _connection.CloseAsync();
         return noAffectedRows;
     }
 
-    public List<T> Select<T>()
+    public async Task<List<T>> Select<T>()
     {
         var query = $"SELECT * FROM {typeof(T).Name}s";
-        return ExecuteQuery<T>(query).ToList();
+        return (List<T>) await ExecuteQuery<T>(query);
     }
 
-    public List<T> Select<T>(string propertyValue, string propertyName)
+    public async Task<List<T>> Select<T>(string propertyValue, string propertyName)
     {
         var query = $"SELECT * FROM {typeof(T).Name}s " +
                     $"WHERE {propertyName.ToLower()} = '{propertyValue}'";
-        return ExecuteQuery<T>(query).ToList();
+        return (List<T>) await ExecuteQuery<T>(query);
     }
 
-    public T? Select<T>(int id)
+    public async Task<T?> Select<T>(int id)
     {
         var query = $"SELECT * FROM {typeof(T).Name}s WHERE id = {id}";
-        return ExecuteQuery<T>(query).ToList().FirstOrDefault();
+        return ((List<T>) await ExecuteQuery<T>(query)).FirstOrDefault();
     }
 
-    public void Update<T>(T entity)
+    public async Task Update<T>(T entity)
     {
         var sb = new StringBuilder();
         var id = GetId(entity);
@@ -75,18 +75,18 @@ public class ORM
         foreach (var property in properties!)
             sb.Append($"{property.Name} = {property.GetValue(entity)}, ");
         
-        string nonQuery = $"UPDATE {typeof(T).Name}s SET {sb} WHERE id = {id}";
-        ExecuteNonQuery<T>(nonQuery);
+        var nonQuery = $"UPDATE {typeof(T).Name}s SET {sb} WHERE id = {id}";
+        await ExecuteNonQuery<T>(nonQuery);
     }
 
-    public void Delete<T>(T entity)
+    public async Task Delete<T>(T entity)
     {
         var id = GetId(entity);
-        string nonQuery = $"DELETE FROM {typeof(T).Name}s + WHERE id = {id}";
-        ExecuteNonQuery<T>(nonQuery);
+        var nonQuery = $"DELETE FROM {typeof(T).Name}s + WHERE id = {id}";
+        await ExecuteNonQuery<T>(nonQuery);
     }
 
-    public void Insert<T>(T entity)
+    public async Task Insert<T>(T entity)
     {
         var args = GetProperties(entity);
         var values = args.Select(value => $"@{value.GetValue(entity)}").ToArray();
@@ -96,17 +96,17 @@ public class ORM
             _command.Parameters.Add(sqlParameter);
         }
         
-        string nonQuery = $"SET IDENTITY_INSERT {typeof(T).Name}s ON" +
-                          $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})" +
-                          $"SET IDENTITY_INSERT {typeof(T).Name} OFF";
-        ExecuteNonQuery<T>(nonQuery);
+        var nonQuery = $"SET IDENTITY_INSERT {typeof(T).Name}s ON" +
+                       $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})" +
+                       $"SET IDENTITY_INSERT {typeof(T).Name}s OFF";
+        await ExecuteNonQuery<T>(nonQuery);
     }
 
-    public void Insert<T>(params object[] args)
+    public async Task Insert<T>(params object[] args)
     {
         var values = args.Select(value => $"@{value}").ToArray();
-        string nonQuery = $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})";
-        ExecuteNonQuery<T>(nonQuery);
+        var nonQuery = $"INSERT INTO {typeof(T).Name}s VALUES ({string.Join(", ", values)})";
+        await ExecuteNonQuery<T>(nonQuery);
     }
 
     private static IEnumerable<object?> GetPropertiesValues<T>(T entity) =>

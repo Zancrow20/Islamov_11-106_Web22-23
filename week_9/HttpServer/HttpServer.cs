@@ -92,10 +92,10 @@ public class HttpServer : IDisposable
    {
       while (_serverStatus == ServerStatus.Start)
       {
-         HttpListenerContext context = await _listener.GetContextAsync();
-         HttpListenerRequest request = context.Request;
+         var context = await _listener.GetContextAsync();
+         var request = context.Request;
 
-         HttpListenerResponse response = context.Response;
+         var response = context.Response;
 
          var methodHandled = MethodHandler(context);
          if (await methodHandled)
@@ -134,7 +134,7 @@ public class HttpServer : IDisposable
       }
 
       response.ContentLength64 = buffer.Length;
-      Stream output = response.OutputStream;
+      var output = response.OutputStream;
       await output.WriteAsync(buffer);
 
       output.Close();
@@ -173,10 +173,10 @@ public class HttpServer : IDisposable
    private async Task<bool> MethodHandler(HttpListenerContext httpContext)
    {
       // объект запроса
-      HttpListenerRequest request = httpContext.Request;
+      var request = httpContext.Request;
 
       // объект ответа
-      HttpListenerResponse response = httpContext.Response;
+      var response = httpContext.Response;
 
       if (request.Url?.Segments.Length < 2) return false;
 
@@ -189,12 +189,10 @@ public class HttpServer : IDisposable
       var controller = assembly
          .GetTypes()
          .Where(t => Attribute.IsDefined(t, typeof(HttpController)))
-         .FirstOrDefault(c => c.Name.ToLower() == controllerName?.ToLower());
+         .FirstOrDefault(c 
+            => string.Equals(c.Name, controllerName, StringComparison.CurrentCultureIgnoreCase));
 
-      if (controller == null) return false;
-      
-      var method = controller
-         .GetMethods()
+      var method = controller?.GetMethods()
          .FirstOrDefault(method =>
          {
             var attribute = method.CustomAttributes
@@ -214,7 +212,7 @@ public class HttpServer : IDisposable
       
       if (method is null) return false;
       
-      List<string> strParams = new List<string>();
+      var strParams = new List<string>();
       switch (httpMethod)
       {
          case "HttpGET" when method.Name is not "GetAccountInfo" :
@@ -236,11 +234,13 @@ public class HttpServer : IDisposable
          strParams.Add(cookieValue!);
       }
       
-      object?[] queryParams = method.GetParameters()
+      var queryParams = method.GetParameters()
          .Select((p, i) => Convert.ChangeType(strParams?[i], p.ParameterType))
          .ToArray();
 
-      var returnedValue = method.Invoke(Activator.CreateInstance(controller), queryParams);
+      var task = (Task)method.Invoke(Activator.CreateInstance(controller), queryParams) as dynamic;
+      object? returnedValue = await task!;
+      
       var buffer = returnedValue switch
       {
          not null => Encoding.ASCII.GetBytes(JsonSerializer.Serialize(returnedValue)),
@@ -253,7 +253,7 @@ public class HttpServer : IDisposable
 
       ResponseInfo = returnedValue switch
       {
-         not null when method.Name is "Login" => GetLoginResponse(returnedValue, buffer),
+         not null when method.Name is "Login" => await GetLoginResponse(returnedValue, buffer),
          not null => new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.OK},
          null when method.Name is "GetAccounts" or "GetAccountInfo"=> 
             new Response {Buffer = buffer, Content = "Application/json", StatusCode = HttpStatusCode.Unauthorized},
@@ -263,7 +263,7 @@ public class HttpServer : IDisposable
       return true;
    }
 
-   private static Response GetLoginResponse(object returnedValue, byte[] bytes)
+   private static async Task<Response> GetLoginResponse(object returnedValue, byte[] bytes)
    {
       var sessionId = (SessionId) returnedValue;
       var cookie = new Cookie("SessionId",
@@ -273,9 +273,9 @@ public class HttpServer : IDisposable
    
    private static async Task<string> GetQueryStringAsync(HttpListenerRequest request)
    {
-      Stream body = request.InputStream;
-      Encoding encoding = request.ContentEncoding;
-      using StreamReader reader = new StreamReader(body, encoding);
+      var body = request.InputStream;
+      var encoding = request.ContentEncoding;
+      using var reader = new StreamReader(body, encoding);
       return await reader.ReadToEndAsync();
    }
 

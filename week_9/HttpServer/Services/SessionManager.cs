@@ -8,18 +8,18 @@ public class SessionManager
     private static MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
     private static ConcurrentDictionary<object, SemaphoreSlim> _locks = new ();
  
-    public static Session GetOrAdd(object key, Func<Session> createItem)
+    public static async Task<Session> GetOrAdd(object key, Func<Task<Session>> createItem)
     {
         if (!_cache.TryGetValue(key, out Session cacheEntry))
         {
-            SemaphoreSlim slim = _locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
-            
-            slim.WaitAsync();
+            SemaphoreSlim mylock = _locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
+ 
+            await mylock.WaitAsync();
             try
             {
                 if (!_cache.TryGetValue(key, out cacheEntry))
                 {
-                    cacheEntry = createItem();
+                    cacheEntry = await createItem();
                     var cacheEntryOptions =
                         new MemoryCacheEntryOptions()
                             .SetSlidingExpiration(TimeSpan.FromMinutes(2000))
@@ -29,21 +29,20 @@ public class SessionManager
             }
             finally
             {
-                slim.Release();
+                mylock.Release();
             }
         }
         return cacheEntry;
     }
 
-    public static bool CheckSession(object key)
+    public static async Task<bool> CheckSession(object key)
     {
         var contains = _cache.TryGetValue(key, out Session session);
-        return contains ? contains : throw new KeyNotFoundException("Couldn't find this key");
+        return await (contains ? Task.FromResult(contains) : throw new KeyNotFoundException("Couldn't find this key"));
     }
 
-    public static Session? GetInfo(object key)
+    public static async Task<Session?> GetInfo(object key)
     {
-        return _cache.Get<Session>(key);
-
+        return await Task.FromResult(_cache.Get<Session>(key));
     }
 }

@@ -15,13 +15,13 @@ public class Accounts
     public Accounts() => _accountRepo = new AccountRepository();
 
     [HttpGET("")]
-    public List<Account>? GetAccounts(string? cookie)
+    public async Task<List<Account>?> GetAccounts(string? cookie)
     {
         try
         {
             var cookieInfo = cookie?.Split('=')[^1];
-            if (Guid.TryParse(cookieInfo, out var guid) && SessionManager.CheckSession(guid))
-                return _accountRepo.GetAccounts();
+            if (Guid.TryParse(cookieInfo, out var guid) && await SessionManager.CheckSession(guid))
+                return await _accountRepo.GetAccounts();
         }
         catch (KeyNotFoundException e)
         {
@@ -32,13 +32,13 @@ public class Accounts
     }
 
     [HttpGET("[1-9][0-9]+")]
-    public Account? GetAccountInfo(string cookie)
+    public async Task<Account?> GetAccountInfo(string cookie)
     {
         try
         { 
             var cookieInfo = cookie.Split('=')[^1];
-            if (Guid.TryParse(cookieInfo, out var guid) && SessionManager.CheckSession(guid))
-                return _accountRepo.GetById(SessionManager.GetInfo(guid)!.AccountId);
+            if (Guid.TryParse(cookieInfo, out var guid) && await SessionManager.CheckSession(guid))
+                return await _accountRepo.GetById((await SessionManager.GetInfo(guid))!.AccountId);
         }
         catch (KeyNotFoundException e)
         {
@@ -48,13 +48,13 @@ public class Accounts
     }
     
     [HttpPOST("account")]
-    public SessionId Login(string nickname, string password)
+    public async Task<SessionId> Login(string nickname, string password)
     {
-        var account = _accountRepo.GetAccountByProperties(nickname, password);
+        var account = await _accountRepo.GetAccountByProperties(nickname, password);
         if (account == null) return null;
         var sessionId = new SessionId(account.Id, nickname,password);
-        SessionManager.GetOrAdd(sessionId.Guid, () 
-            => new Session(sessionId.Guid, account.Id, nickname, DateTime.Now));
+        await SessionManager.GetOrAdd(sessionId.Guid, () 
+            => Task.FromResult(new Session(sessionId.Guid, account.Id, nickname, DateTime.Now)));
         return sessionId;
     }
 }
